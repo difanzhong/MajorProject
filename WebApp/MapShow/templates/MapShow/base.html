@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Simple Map</title>
+
+        <meta name="viewport" content="initial-scale=1.0">
+        <meta charset="utf-8">
+
+
+        <script src="{% static 'js/d3.min.js' %}"></script>
+        <script src="{% static 'js/d3.layout.cloud.js' %}"></script>
+
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        <script>
+            $( function() {
+            $( "#slider" ).slider();
+
+            $( "#slider" ).on( "slidechange", function() {
+                showNewWords(myWordCloud);
+            } );
+            } );
+        </script>
+        <script src="{% static 'materialize/js/materialize.js' %}"></script>
+
+
+
+        <link href="{% static 'materialize/css/materialize.min.css' %}" rel="stylesheet" type="text/css" />
+
+        <link href="{% static 'css/my.css' %}" rel="stylesheet" type="text/css" />
+  </head>
+<body>
+    {% block content %}
+        Sample content -- you should never see this, unless an inheriting template fails to have any content block!
+    {% endblock %}
+</body>
+</html>
