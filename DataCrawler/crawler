@@ -1,0 +1,71 @@
+import tweepy
+from tweepy import Stream
+from tweepy import OAuthHandler
+from tweepy.streaming import StreamListener
+import sys
+import os
+import pre_processing
+
+consumer_key = '5kDnOi1br8qk6ySNLmu05cpUr'
+consumer_secret = 'EYLu9iisDpGzOYsbdqvBgx5nvjSg6lcERY7Fq1r2lSy9YZX53i'
+access_token = '863347247836086272-dKCP7OHqeaRohrESNfydqTNWWeRTzmj'
+access_secret = 'hkA2KdVVAEHOsMzAORzFIH4q9voIgiL9XC6q24k1Ewh4W'
+
+auth = OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token, access_secret)
+
+api = tweepy.API(auth)
+
+places = api.geo_search(query="Australia", granularity="country")
+place_id = places[0].id
+
+tweets = api.search(q="place:%s" % place_id, since="2017-05-10",until="2017-05-11")
+
+sinceId = None
+
+# If results only below a specific ID are, set max_id to that ID.
+# else default to no upper limit, start from the most recent tweet matching the search query.
+max_id = -1
+tweetCount = 0
+maxTweets = 10000
+tweetsPerQry = 100
+textMining = pre_processing.PreProcessing()
+
+while tweetCount < maxTweets:
+        try:
+            if (max_id <= 0):
+                if (not sinceId):
+                    new_tweets = api.search(q="place:%s" % place_id, count=tweetsPerQry,since="2017-05-10",until="2017-05-11")
+                else:
+                    new_tweets = api.search(q="place:%s" % place_id, count=tweetsPerQry,
+                                            since_id=sinceId,since="2017-05-10",until="2017-05-11")
+            else:
+                if (not sinceId):
+                    new_tweets = api.search(q="place:%s" % place_id, count=tweetsPerQry,
+                                            max_id=str(max_id - 1),since="2017-05-10",until="2017-05-11")
+                else:
+                    new_tweets = api.search(q="place:%s" % place_id, count=tweetsPerQry,
+                                            max_id=str(max_id - 1),
+                                            since_id=sinceId,since="2017-05-10",until="2017-05-11")
+            if not new_tweets:
+                print("No more tweets found")
+                break
+            for tweet in new_tweets:
+                print(
+                    tweet.created_at.__str__() + " | " + tweet.text +" | " 
+                        " | " + tweet.place.name if tweet.place else "Undefined place" + " | ")
+
+            tweetCount += len(new_tweets)
+            print(tweetCount)
+            #print("Downloaded {0} tweets".format(tweetCount))
+            max_id = new_tweets[-1].id
+        except tweepy.TweepError as e:
+            # Just exit if any error
+            print("some error : " + str(e))
+            break
+
+
+
+# while(True):
+#     for tweet in tweets:
+#         print(tweet.created_at.__str__() + " | " + tweet.text + " | " + tweet.place.name if tweet.place else "Undefined place" + " | " + tweet.coordinate if tweet.coordinate else "Undefined place" )
